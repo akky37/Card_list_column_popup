@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Column Lists with Cards</title>
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <!-- Custom CSS -->
+  <style>
+    .column {
+      background-color: rgb(180, 181, 198);
+      border: 1px solid #074287;
+      border-radius: 5px;
+      padding: 15px;
+      margin: 10px;
+      min-height: 200px;
+    }
+    .card {
+      background-color: #fff;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      padding: 10px;
+      margin-bottom: 10px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="container mt-5" style="background-image: url(business-card.jpg);">
+    <div class="row">
+      <div class="col-md-4">
+        <div class="column" data-column="todo">
+          <h2>To Do</h2>
+          <div class="card" data-title="Card 1" data-description="Description of Card 1">
+            <h3>Card 1</h3>
+            <img src="board.png" alt="image">
+            <p>Description of Card 1</p>
+          </div>
+          <div class="card" data-title="Card 2" data-description="Description of Card 2">
+            <h3>Card 2</h3>
+            <img src="board.png" alt="image">
+
+            <p>Description of Card 2</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="column" data-column="inprogress">
+          <h2>In Progress</h2>
+          <div class="card" data-title="Card 3" data-description="Description of Card 3">
+            <h3>Card 3</h3>
+            <img src="board.png" alt="image">
+
+            <p>Description of Card 3</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="column" data-column="done">
+          <h2>Done</h2>
+          <div class="card" data-title="Card 4" data-description="Description of Card 4">
+            <h3>Card 4</h3>
+            <img src="board.png" alt="image">
+
+            <p>Description of Card 4</p>
+          </div>
+          <div class="card" data-title="Card 5" data-description="Description of Card 5">
+            <h3>Card 5</h3>
+            <img src="board.png" alt="image">
+
+            <p>Description of Card 5</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <button class="btn btn-primary mt-3" id="addCardBtn" data-toggle="modal" data-target="#addCardModal">Add Card</button>
+  </div>
+
+  <!-- Add Card Modal -->
+  <div class="modal fade" id="addCardModal" tabindex="-1" role="dialog" aria-labelledby="addCardModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addCardModalLabel">Add/Edit Card</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form id="addCardForm">
+            <div class="form-group">
+              <label for="title">Title</label>
+              <input type="text" class="form-control" id="title" name="title" required>
+              <div class="invalid-feedback">Title should only contain alphabets.</div>
+            </div>
+            <div class="form-group">
+              <label for="description">Description</label>
+              <textarea class="form-control" id="description" name="description" rows="3" required minlength="25"></textarea>
+              <div class="invalid-feedback">Description should be at least 25 characters long.</div>
+            </div>
+            <div class="form-group">
+              <label for="column">Select Column</label>
+              <select class="form-control" id="column" name="column" required>
+                <option value="">Select Column</option>
+                <option value="todo">To Do</option>
+                <option value="inprogress">In Progress</option>
+                <option value="done">Done</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+            <button type="button" class="btn btn-danger float-right" id="deleteCardBtn">Delete</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS (Optional) -->
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script>
+    $(document).ready(function () {
+      // Handle card click to open modal with prefilled data
+      $('.card').click(function () {
+        var title = $(this).data('title');
+        var description = $(this).data('description');
+        var column = $(this).closest('.column').data('column');
+        $('#addCardModal').modal('show');
+        $('#addCardModalLabel').text('Edit Card');
+        $('#title').val(title);
+        $('#description').val(description);
+        $('#column').val(column);
+        $('#deleteCardBtn').show();
+      });
+
+      // Handle delete card button click
+      $('#deleteCardBtn').click(function () {
+        $('.card.active').remove();
+        $('#addCardModal').modal('hide');
+      });
+
+      // Add Card form submission
+      $('#addCardForm').submit(function (event) {
+        event.preventDefault();
+        if (this.checkValidity()) {
+          var title = $('#title').val();
+          var description = $('#description').val();
+          var column = $('#column').val();
+          var columnElement = $('.column[data-column="' + column + '"]');
+          if ($('.card.active').length > 0) {
+            // Edit existing card
+            $('.card.active').find('h3').text(title);
+            $('.card.active').find('p').text(description);
+            $('.card.active').data('title', title);
+            $('.card.active').data('description', description);
+            $('.card.active').removeClass('active');
+          } else {
+            // Add new card
+            var cardHtml = '<div class="card" data-title="' + title + '" data-description="' + description + '"><h3>' + title + '</h3><p>' + description + '</p></div>';
+            columnElement.append(cardHtml);
+          }
+          $('#addCardModal').modal('hide');
+          this.reset();
+        }
+      });
+    });
+  </script>
+</body>
+</html>
